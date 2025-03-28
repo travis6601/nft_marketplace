@@ -6,8 +6,8 @@ export const main = async () => {
   const marketPlaceContract = await getMarketPlaceContractAddress();
 
   // Call contract to create NFT
-  const name = "BEAR NFT 5";
-  const symbol = "BEAR5";
+  const name = "BEAR NFT";
+  const symbol = "BEAR";
   const tokenUri = "ipfs://QmXEm1qRdEywKdkeNhYn5C7YWCQhqGAKEy7AyQRpDrQgfB";
   const price = 0.0001 * 10 ** 18;
 

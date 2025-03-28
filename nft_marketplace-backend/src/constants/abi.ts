@@ -178,7 +178,25 @@ export const NFT_MARKETPLACE_ABI = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getContractBalance",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
       {
         internalType: "address",
         name: "nftContract",
@@ -280,6 +298,19 @@ export const NFT_MARKETPLACE_ABI = [
       },
     ],
     name: "sellNft",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address payable",
+        name: "_to",
+        type: "address",
+      },
+    ],
+    name: "withdrawTo",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

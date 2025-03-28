@@ -26,13 +26,15 @@ class BlockchainService {
           // Get tokenUri from NFT contract
           const parseTokenUri = parsedTokenUri(nft.tokenUri);
           const tokenUri = await fetch(parseTokenUri);
+
           const tokenUriJson = await tokenUri.json();
 
           return {
             ...nft,
             name,
             symbol,
-            tokenUri: tokenUriJson.image,
+            tokenUri: nft.tokenUri,
+            image: tokenUriJson.image,
           };
         })
       );
@@ -63,7 +65,7 @@ class BlockchainService {
         toBlock: "latest",
       });
 
-      if (logs.length > 1) {
+      if (logs.length > 0) {
         const lastestBlockNumber = logs[logs.length - 1].blockNumber;
 
         for (const log of logs) {
@@ -82,7 +84,7 @@ class BlockchainService {
             from_address: isBuyEvent
               ? decodedLog.args.buyer
               : decodedLog.args.seller,
-            price: Number(formatEther(decodedLog.args.price)),
+            price: formatEther(BigInt(decodedLog.args.price)),
             type:
               decodedLog.name === "NFTBuy"
                 ? TRANSACTION_TYPE.BUY

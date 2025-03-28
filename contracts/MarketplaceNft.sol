@@ -58,15 +58,6 @@ contract NftMarketPlace {
 
         require(success, "NFT purchase failed");
 
-        // Refund excess ETH back to the buyer
-        uint256 excess = msg.value - nftPrice;
-        if (excess > 0) {
-            (bool refundSuccess, ) = payable(msg.sender).call{value: excess}(
-                ""
-            );
-            require(refundSuccess, "Refund failed");
-        }
-
         // Mint NFT to buyer
         uint256 lastTokenId = lastNftTokenId[nftAddress];
         NFT(payable(nftAddress)).mint(
@@ -77,6 +68,15 @@ contract NftMarketPlace {
         // Update NFT token id
         addToken(msg.sender, nftAddress, lastTokenId);
         lastNftTokenId[nftAddress] = lastNftTokenId[nftAddress] + 1;
+
+        // Refund excess ETH back to the buyer
+        uint256 excess = msg.value - nftPrice;
+        if (excess > 0) {
+            (bool refundSuccess, ) = payable(msg.sender).call{value: excess}(
+                ""
+            );
+            require(refundSuccess, "Refund failed");
+        }
         emit NFTBuy(msg.sender, nftAddress, nftPrice);
     }
 
@@ -141,7 +141,7 @@ contract NftMarketPlace {
             removeTokenId(msg.sender, nftAddress, tokenIdToBurn);
 
             // Log sell event
-            emitNFTSell(msg.sender, nftAddress, nftPrice);
+            emit NFTSell(msg.sender, nftAddress, nftPrice);
         } catch {
             revert("NFT burn failed");
         }
@@ -152,9 +152,10 @@ contract NftMarketPlace {
         string memory symbol,
         string memory tokenUri,
         uint256 price
-    ) external {
+    ) public {
         NFT newNft = new NFT(name, symbol);
         address createdNftAddress = address(newNft);
+        require(price > 0, "Price must be greater than 0");
 
         NftListing memory newNftListing = NftListing(
             payable(msg.sender),
@@ -181,15 +182,16 @@ contract NftMarketPlace {
         return allListings;
     }
 
-    function getNftBalances(address nftContract) public view returns (uint256) {
-        address nftContract = listingNftContractAddress[0];
+    function getNftBalances(address user,address nftContract) public view returns (uint256) {
         require(isValidNftContract(nftContract), "NFT contract not found");
-        return NFT(nftContract).balanceOf(msg.sender);
+        return NFT(nftContract).balanceOf(user);
     }
 
-    function isValidNftContract(
-        address nftContract
-    ) private view returns (bool) {
+    function isValidNftContract(address nftContract)
+        private
+        view
+        returns (bool)
+    {
         for (uint256 i = 0; i < listingNftContractAddress.length; i++) {
             if (listingNftContractAddress[i] == nftContract) {
                 return true;
@@ -199,14 +201,26 @@ contract NftMarketPlace {
     }
 
     // Function to get all token IDs owned by a user for a specific NFT contract
-    function getOwnedTokens(
-        address user,
-        address nftAddress
-    ) public view returns (uint256[] memory) {
+    function getOwnedTokens(address user, address nftAddress)
+        public
+        view
+        returns (uint256[] memory)
+    {
         return userOwnedTokens[user][nftAddress];
     }
 
-    function getContractBalance() private view returns (uint256) {
+    function getContractBalance() public view returns (uint256) {
         return address(this).balance;
+    }
+
+    // Withdraw balance to specific addressƒ
+    function withdrawTo(address payable _to) external {
+        require(msg.sender == owner, "Only owner can withdraw");
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No ETH to withdraw");
+
+        // Send ETH using call (recommended for better error handling)
+        (bool success, ) = _to.call{value: balance}("");
+        require(success, "ETH transfer failed");
     }
 }

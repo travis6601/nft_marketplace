@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 import nftService from "../services/nft.service";
 import blockchainService from "../services/blockchain.service";
-import pinata from "../config/pinata";
 import { nftMarketPlaceContract } from "../config/blockchain";
-const mime = require("mime");
 
 const getAllNfts = async (req: Request, res: Response) => {
   try {
@@ -21,9 +19,30 @@ const getAllNfts = async (req: Request, res: Response) => {
 
 const getNftTransactions = async (req: Request, res: Response) => {
   try {
-    await blockchainService.getUserTransaction();
+    const { address, page = 1, pageSize = 20, time_sort = "desc" } = req.query;
+
+    if (!address) {
+      res.status(400).json({ message: "User address is required" });
+      return;
+    }
+
+    // Get user transaction by filter user and make pagination
+    const userTransactions = await nftService.getUserTransaction(
+      address as string,
+      Number(page),
+      Number(pageSize),
+      time_sort as "desc" | "asc"
+    );
+    console.log("userTransactions: ", userTransactions);
+
+    if (!userTransactions) {
+      res.status(500).json({ message: "Failed to get user transactions" });
+      return;
+    }
+
     res.json({
       message: "User transactions fetched successfully",
+      data: userTransactions,
     });
   } catch (error) {
     console.error("Error: ", error);
@@ -35,21 +54,20 @@ const uploadMetadata = async (req: Request, res: Response) => {
   try {
     const { name, description } = req.body;
 
-    if (!name || !description || !req.file) {
+    const imagePath = req?.file?.path;
+
+    if (!name || !description || !imagePath) {
       res.status(400).json({ message: "Missing required fields" });
-      return;
     }
 
-    const imagePath = req.file.path;
     const metadataCid = await nftService.uploadMetadataToIpfs(
       name,
       description,
-      imagePath
+      imagePath as string
     );
 
     if (!metadataCid) {
       res.status(500).json({ message: "Failed to upload metadata" });
-      return;
     }
 
     res.json({
@@ -83,8 +101,6 @@ const getNftBalance = async (req: Request, res: Response) => {
         balance: Number(nftBalance),
       });
     }
-
-    console.log("nftBalances", nftBalances);
 
     res.json({
       message: "User balance fetched successfully",

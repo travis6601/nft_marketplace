@@ -57,6 +57,35 @@ class NftService {
       return null;
     }
   };
+
+  getUserTransaction = async (
+    address: string,
+    page: number,
+    pageSize: number,
+    time_sort: "desc" | "asc"
+  ) => {
+    try {
+      const userTransactions = await prisma.transactions.findMany({
+        where: {
+          OR: [
+            {
+              from_address: address,
+            },
+          ],
+        },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        orderBy: {
+          transaction_at: time_sort,
+        },
+      });
+
+      return userTransactions;
+    } catch (error) {
+      console.log("Error when fetch user transactions", error);
+      return null;
+    }
+  };
 }
 
 export default new NftService();

@@ -14,6 +14,11 @@ export const main = async () => {
   });
 
   console.log("tx", tx);
+  await tx.wait();
+  console.log(
+    "NFT created successfully",
+    `https://sepolia.basescan.org/tx/${tx.hash}`
+  );
 };
 
 main();

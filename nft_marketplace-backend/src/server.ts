@@ -17,10 +17,10 @@ app.get("/", async (req: Request, res: Response) => {
 app.use(nftRoute);
 
 // Fetch all NFT details every minute
-// cron.schedule("*/15 * * * * *", async () => {
-//   await cronjobService.refetchNftDetails();
-//   await blockchainService.getUserTransaction();
-// });
+cron.schedule("*/15 * * * * *", async () => {
+  await cronjobService.refetchNftDetails();
+  await blockchainService.getUserTransaction();
+});
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

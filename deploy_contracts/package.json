@@ -7,7 +7,9 @@
     "test": "npx hardhat run src/test.ts --network base-sepolia",
     "buy:token": "npx hardhat run src/buyToken.ts --network base-sepolia",
     "sell:token": "npx hardhat run src/sellToken.ts --network base-sepolia",
-    "create:token": "npx hardhat run src/createToken.ts --network base-sepolia"
+    "create:token": "npx hardhat run src/createToken.ts --network base-sepolia",
+    "check-balance": "npx hardhat run src/checkBalance.ts --network base-sepolia",
+    "withdraw": "npx hardhat run src/withdraw.ts --network base-sepolia"
   },
   "keywords": [],
   "author": "",

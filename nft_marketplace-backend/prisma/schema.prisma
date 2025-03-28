@@ -19,7 +19,8 @@ model nft {
   name     String
   symbol   String
   uri      String
-  price    Float
+  price    String
+  image    String
   isListed Boolean
   updated  DateTime @default(now())
   created  DateTime @default(now())
@@ -29,7 +30,7 @@ model transactions {
   id             String   @id @unique
   nft_address    String
   from_address   String
-  price          Float
+  price          String
   type           String
   transaction_at DateTime
   updated_at     DateTime @default(now())

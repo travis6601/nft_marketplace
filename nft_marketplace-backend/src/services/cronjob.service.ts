@@ -33,8 +33,9 @@ class CronJob {
               name: nft.name,
               symbol: nft.symbol,
               uri: nft.tokenUri,
-              price: Number(formatEther(Number(nft.price))),
+              price: formatEther(BigInt(nft.price)),
               isListed: nft.isListed,
+              image: nft.image,
             },
           })
         )
